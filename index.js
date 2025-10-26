@@ -17,15 +17,33 @@ const {
   BIAYA = '0',
   // SKP pilihan: 'lainlain' | '2' (Tugas Tambahan) | '3' (Kreatifitas) | atau value lain yang tersedia
   SKP_VALUE = 'lainlain',
-  HEADLESS = 'true'
+  HEADLESS = 'true',
+  JOURNAL_TIMEZONE = 'Asia/Jakarta'
 } = process.env;
 
-function today_ddmmyyyy() {
-  const d = new Date();
-  const dd = String(d.getDate()).padStart(2, '0');
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const yyyy = d.getFullYear();
-  return `${dd}-${mm}-${yyyy}`;
+function today_ddmmyyyy(timeZone) {
+  try {
+    const formatter = new Intl.DateTimeFormat('en-GB', {
+      timeZone,
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+    const parts = formatter.formatToParts(new Date());
+    const lookup = type => parts.find(p => p.type === type)?.value ?? '';
+    const dd = lookup('day');
+    const mm = lookup('month');
+    const yyyy = lookup('year');
+    if (!dd || !mm || !yyyy) throw new Error('Missing date parts');
+    return `${dd}-${mm}-${yyyy}`;
+  } catch (err) {
+    console.warn(`Failed to format date with timezone "${timeZone}", falling back to system timezone.`, err);
+    const d = new Date();
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    return `${dd}-${mm}-${yyyy}`;
+  }
 }
 
 async function selectWithFallback(page, selector, desiredValue) {
@@ -111,7 +129,7 @@ async function run() {
   await page.goto(SIMPEG_JOURNAL_URL, { waitUntil: 'networkidle2' });
 
   // 5) Set the date (dd-mm-yyyy) then wait for the table to reload
-  const tgl = today_ddmmyyyy();
+  const tgl = today_ddmmyyyy(JOURNAL_TIMEZONE);
   await page.waitForSelector('#tgla');
   await page.$eval('#tgla', (el, val) => { el.value = val; el.dispatchEvent(new Event('change', { bubbles: true })); }, tgl);
 
