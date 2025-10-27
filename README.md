@@ -17,7 +17,7 @@ Automates the daily journal submission flow on the SIMPEG portal using Puppeteer
    NIP=your_nip_here
    PASSWORD=your_password_here
    ```
-   You can also override defaults for `JOURNAL_TEXT`, `JAM_MULAI`, `SKP_VALUE`, etc. Set `JOURNAL_TIMEZONE` (default: `Asia/Jakarta`) if you need the journal to follow a specific timezone when picking the date. See the inline comments in `.env` for the complete list.
+   You can also override defaults for `JOURNAL_TEXT`, `JAM_MULAI`, `SKP_VALUE`, etc. Set `JOURNAL_TIMEZONE` (default: `Asia/Jakarta`) if you need the journal to follow a specific timezone when picking the date and driving the browser’s clock. See the inline comments in `.env` for the complete list.
 
 ## Running the Bot
 - **Directly with Node.js**

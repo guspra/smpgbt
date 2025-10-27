@@ -77,6 +77,11 @@ async function run() {
   });
 
   const page = await browser.newPage();
+  try {
+    await page.emulateTimezone(JOURNAL_TIMEZONE);
+  } catch (err) {
+    console.warn(`Failed to emulate browser timezone "${JOURNAL_TIMEZONE}". Continuing with default timezone.`, err);
+  }
 
   // 1) Open login page
   await page.goto(SIMPEG_LOGIN_URL, { waitUntil: 'networkidle2' });
@@ -130,6 +135,7 @@ async function run() {
 
   // 5) Set the date (dd-mm-yyyy) then wait for the table to reload
   const tgl = today_ddmmyyyy(JOURNAL_TIMEZONE);
+  console.log('Using journal date:', tgl);
   await page.waitForSelector('#tgla');
   await page.$eval('#tgla', (el, val) => { el.value = val; el.dispatchEvent(new Event('change', { bubbles: true })); }, tgl);
 
